@@ -56,29 +56,55 @@ class App extends Component {
     super();
     this.state = {
       input: '',
+      imageUrl: '',
     }
   }
 
   onInputChange = (event) => {
-    console.log(event.target.value);
+    this.setState({input: event.target.value});
   }
 
   onButtonSubmit = () => {
-    console.log('Click');
     this.setState({imageUrl: this.state.input});
-    // app.models.predict("face-detection", "https://samples.clarifai.com/face-det.jpg")
-    // .then(
-    //   function(response) {
-    //     console.log(response);
-    //   },
-    //   function(err) {
-    //     console.log("An error has occurred", err);
-    //   }
-    // );
-    fetch("https://api.clarifai.com/v2/models/face-detection/outputs", returnClarifaiRequestOptions(this.state.input))
-    .then(response => response.json())
-    .then(result => console.log(result))
-    .catch(error => console.log('error', error));
+    // ---------------------------------------------- Old Method ---------------------------------------------------------
+    app.models.predict("face-detection", this.state.input)
+    .then(
+      function(response) {
+        console.log(response.outputs[0].data.regions[0].region_info.bounding_box);
+      },
+      function(err) {
+        console.log("An error has occurred", err);
+      }
+    );
+    // ---------------------------------------------- New Method ---------------------------------------------------------
+    // fetch("https://api.clarifai.com/v2/models/face-detection/outputs", returnClarifaiRequestOptions(this.state.input))
+    // .then(response => response.json())
+    // fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
+    // .then(response => response.json())
+    // .then(result => {
+
+    //     const regions = result.outputs[0].data.regions;
+
+    //     regions.forEach(region => {
+    //         // Accessing and rounding the bounding box values
+    //         const boundingBox = region.region_info.bounding_box;
+    //         const topRow = boundingBox.top_row.toFixed(3);
+    //         const leftCol = boundingBox.left_col.toFixed(3);
+    //         const bottomRow = boundingBox.bottom_row.toFixed(3);
+    //         const rightCol = boundingBox.right_col.toFixed(3);
+
+    //         region.data.concepts.forEach(concept => {
+    //             // Accessing and rounding the concept value
+    //             const name = concept.name;
+    //             const value = concept.value.toFixed(4);
+
+    //             console.log(`${name}: ${value} BBox: ${topRow}, ${leftCol}, ${bottomRow}, ${rightCol}`);
+                
+    //         });
+    //     });
+
+    // })
+    // .catch(error => console.log('error', error));
   }
 
   render() {
@@ -89,7 +115,7 @@ class App extends Component {
         <Logo />
         <Rank />
         <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-        <FaceRecognition />
+        <FaceRecognition imageUrl={this.state.imageUrl} />
       </div>
     );
   }
